@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{NAME}} — CV</title>
+<style>
+  /* Modern professional template: centered header with a tech tagline, blue
+     accents, "Company — Role" experience lines, a Projects section with inline
+     tech tags, and **bold** inline highlights in bullets (build-cv-html turns
+     **...** into <strong>). Section order: Summary, Work Experience, Projects,
+     Skills, Education.
+
+     Font stack is Calibri/Carlito first (Windows/Office); headless Chromium
+     falls back to the metric-clean Liberation Sans/Arial family, keeping ATS
+     text extraction clean. */
+  :root {
+    --accent-color: #2f5496;   /* headings, name, tagline, rules */
+    --font-family: Calibri, Carlito, 'Segoe UI', "Liberation Sans", 'Helvetica Neue', Arial, sans-serif;
+    --font-size: 10.5px;
+    --page-margin: 0.5in;
+  }
+  @page { margin: var(--page-margin); }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* Disable ligatures so PDF text extraction (what ATS reads) stays literal. */
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0, "clig" 0, "dlig" 0;
+  }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: 1.4;
+    color: #1a1a1a;
+    background: #ffffff;
+  }
+  .page { width: 100%; max-width: {{PAGE_WIDTH}}; margin: 0 auto; padding: 2px 0; }
+  a { color: inherit; text-decoration: none; white-space: nowrap; }
+
+  /* === HEADER (centered) === */
+  .header { text-align: center; margin-bottom: 12px; }
+  .header h1 {
+    font-size: 25px;
+    font-weight: 700;
+    color: var(--accent-color);
+    letter-spacing: 0.01em;
+    line-height: 1.1;
+    margin-bottom: 5px;
+  }
+  .contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 8px;
+    font-size: 10.5px;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  .contact-row .separator { color: #b0b0b0; }
+  .tagline {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent-color);
+    letter-spacing: 0.01em;
+  }
+  .tagline:empty { display: none; }
+
+  .cv-photo { display: none; } /* modern template is photoless (ATS-first market) */
+
+  /* === SECTIONS === */
+  .section { margin-bottom: 11px; }
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-color);
+    border-bottom: 1.5px solid var(--accent-color);
+    padding-bottom: 2px;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  /* === SUMMARY === */
+  .summary-text { font-size: var(--font-size); line-height: 1.45; color: #1a1a1a; }
+  .summary-text strong { font-weight: 700; }
+
+  /* === WORK EXPERIENCE === */
+  .job { margin-bottom: 9px; }
+  .job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .job-company { font-size: 11.5px; font-weight: 700; color: #1a1a1a; }
+  .job-period { font-size: 10.5px; font-weight: 700; color: #1a1a1a; white-space: nowrap; }
+  .job-role { font-size: var(--font-size); font-weight: 600; color: #333; }
+  .job-role:empty { display: none; }
+  .job-location { font-size: 10px; font-style: italic; color: #666; margin-top: 1px; }
+  .job ul { padding-left: 16px; margin-top: 4px; }
+  .job ul:empty { display: none; margin: 0; }
+  .job li { font-size: 10.5px; line-height: 1.4; color: #1a1a1a; margin-bottom: 3px; }
+  .job li strong { font-weight: 700; }
+
+  /* === PROJECTS (bold name — description  tech tags in italic grey) === */
+  .project { margin-bottom: 6px; font-size: 10.5px; line-height: 1.45; color: #1a1a1a; }
+  .project-title { font-weight: 700; color: #1a1a1a; }
+  .project-title::after { content: " \2014 "; font-weight: 400; }
+  .project-desc { display: inline; }
+  .project-desc strong { font-weight: 700; }
+  .project-tech {
+    display: inline;
+    font-style: italic;
+    color: #777;
+    font-size: 9.5px;
+  }
+  .project-tech::before { content: "  "; }
+
+  /* === SKILLS (one category per line) === */
+  .skill-item { font-size: 10.5px; color: #1a1a1a; margin-bottom: 2px; line-height: 1.4; }
+  .skill-category { font-weight: 700; color: #1a1a1a; }
+
+  /* === EDUCATION (title — org ............ year) === */
+  .edu-item { margin-bottom: 3px; }
+  .edu-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .edu-title { font-size: 10.5px; color: #1a1a1a; }
+  .edu-org::before { content: "\2014 "; color: #444; }
+  .edu-org { color: #1a1a1a; }
+  .edu-year { font-size: 10px; color: #555; white-space: nowrap; }
+
+  /* === PRINT === */
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { padding: 0 0.12in 0 0; }
+  }
+  .section-title, .job-company, .job-role, .project-title, .edu-title {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  .job, .edu-item, .project, .skill-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  {{PHOTO}}
+  <!-- HEADER: name, contact line, tech tagline -->
+  <div class="header">
+    <h1>{{NAME}}</h1>
+    <div class="contact-row"></div>
+    <div class="tagline">{{HEADLINE}}</div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="section">
+    <div class="section-title">{{SECTION_SUMMARY}}</div>
+    <div class="summary-text">{{SUMMARY_TEXT}}</div>
+  </div>
+
+  <!-- WORK EXPERIENCE -->
+  <div class="section">
+    <div class="section-title">{{SECTION_EXPERIENCE}}</div>
+    {{EXPERIENCE}}
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="section">
+    <div class="section-title">{{SECTION_PROJECTS}}</div>
+    {{PROJECTS}}
+  </div>
+
+  <!-- SKILLS -->
+  <div class="section">
+    <div class="section-title">{{SECTION_SKILLS}}</div>
+    {{SKILLS}}
+  </div>
+
+  <!-- EDUCATION -->
+  <div class="section">
+    <div class="section-title">{{SECTION_EDUCATION}}</div>
+    {{EDUCATION}}
+  </div>
+
+</div>
+</body>
+</html>

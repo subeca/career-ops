@@ -73,6 +73,16 @@ function escapeHtml(text) {
     .replace(/'/g, '&#39;');
 }
 
+// Convert markdown-style **bold** into <strong> spans. MUST run on already-
+// escaped text: escapeHtml leaves the literal ** asterisks untouched, so this
+// only introduces the <strong>/</strong> tags and never any attacker-controlled
+// markup. Used for inline emphasis in summary text, experience bullets, and
+// project descriptions. Unmatched ** are left as literal text.
+function inlineBold(escaped) {
+  if (typeof escaped !== 'string') return '';
+  return escaped.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
+}
+
 // Sanitize a URL for an href attribute: only allow the schemes the template's
 // contact row uses, coerce bare emails/domains, drop javascript:/data: and other
 // script-bearing schemes, then HTML-escape for the attribute context.
@@ -317,7 +327,7 @@ function buildExperience(entries, partial) {
   if (!partial) {
     return entries.filter(Boolean).map(e => {
       const bullets = Array.isArray(e.bullets)
-        ? e.bullets.filter(Boolean).map(b => `        <li>${escapeHtml(b)}</li>`).join('\n')
+        ? e.bullets.filter(Boolean).map(b => `        <li>${inlineBold(escapeHtml(b))}</li>`).join('\n')
         : '';
       const location = e.location
         ? `\n    <div class="job-location">${escapeHtml(e.location)}</div>`
@@ -338,7 +348,7 @@ ${bullets}
   const { entryTemplate, blocks } = partial;
   return entries.filter(Boolean).map(e => {
     const bullets = Array.isArray(e.bullets)
-      ? e.bullets.filter(Boolean).map(b => `<li>${escapeHtml(b)}</li>`).join('\n    ')
+      ? e.bullets.filter(Boolean).map(b => `<li>${inlineBold(escapeHtml(b))}</li>`).join('\n    ')
       : '';
     const blockValues = new Map([
       ['LOCATION_BLOCK', { value: escapeHtml(e.location || ''), present: Boolean(e.location) }],
@@ -365,7 +375,7 @@ function buildProjects(entries, partial) {
       const descText = e.description
         || (Array.isArray(e.bullets) ? e.bullets.filter(Boolean).join(' ') : '');
       const desc = descText
-        ? `\n    <div class="project-desc">${escapeHtml(descText)}</div>`
+        ? `\n    <div class="project-desc">${inlineBold(escapeHtml(descText))}</div>`
         : '';
       const tech = e.tech
         ? `\n    <div class="project-tech">${escapeHtml(e.tech)}</div>`
@@ -382,13 +392,13 @@ function buildProjects(entries, partial) {
       || (Array.isArray(e.bullets) ? e.bullets.filter(Boolean).join(' ') : '');
     const blockValues = new Map([
       ['BADGE_BLOCK', { value: escapeHtml(e.badge || ''), present: Boolean(e.badge) }],
-      ['DESC_BLOCK',  { value: escapeHtml(descText),      present: Boolean(descText) }],
+      ['DESC_BLOCK',  { value: inlineBold(escapeHtml(descText)), present: Boolean(descText) }],
       ['TECH_BLOCK',  { value: escapeHtml(e.tech || ''),  present: Boolean(e.tech) }],
     ]);
     return fillEntry(entryTemplate, blocks, {
       NAME:  escapeHtml(e.name || ''),
       BADGE: escapeHtml(e.badge || ''),
-      DESC:  escapeHtml(descText),
+      DESC:  inlineBold(escapeHtml(descText)),
       TECH:  escapeHtml(e.tech || ''),
     }, blockValues);
   }).join('\n  ');
@@ -574,7 +584,7 @@ function renderReport(payload, partials) {
     // candidate.headline.
     HEADLINE: escapeHtml(payload.headline || candidate.headline || ''),
     SECTION_SUMMARY: escapeHtml(sectionTitles.summary),
-    SUMMARY_TEXT: escapeHtml(payload.summary || ''),
+    SUMMARY_TEXT: inlineBold(escapeHtml(payload.summary || '')),
     SECTION_COMPETENCIES: escapeHtml(sectionTitles.competencies),
     COMPETENCIES: buildCompetencies(payload.competencies, partials.get('competencies')),
     SECTION_EXPERIENCE: escapeHtml(sectionTitles.experience),
