@@ -568,6 +568,11 @@ function renderReport(payload, partials) {
     LANG: escapeHtml(payload.lang || 'en'),
     PAGE_WIDTH: pageWidth,
     NAME: escapeHtml(candidate.name || ''),
+    // Optional role/headline subtitle under the name (e.g. "Site Reliability
+    // Engineer"). Templates that don't include {{HEADLINE}} simply ignore it;
+    // an empty value renders nothing. Read from payload.headline or
+    // candidate.headline.
+    HEADLINE: escapeHtml(payload.headline || candidate.headline || ''),
     SECTION_SUMMARY: escapeHtml(sectionTitles.summary),
     SUMMARY_TEXT: escapeHtml(payload.summary || ''),
     SECTION_COMPETENCIES: escapeHtml(sectionTitles.competencies),

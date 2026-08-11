@@ -15,11 +15,11 @@
        Sans/Arial family, preserving a classic Word look with clean ATS extraction. */
     --accent-color: #1a1a2e;
     --font-family: Calibri, Carlito, 'Segoe UI', "Liberation Sans", 'Helvetica Neue', Arial, sans-serif;
-    --font-size: 10.5px;
+    --font-size: 10px;
     /* Matches generate-pdf.mjs's PDF_PAGE_MARGIN — the actual PDF page margin
        comes from the later @page rule injectPrintPageCss appends (which reads
        this same variable), so this default must match it exactly. */
-    --page-margin: 0.6in;
+    --page-margin: 0.45in;
   }
   @page { margin: var(--page-margin); }
 
@@ -74,7 +74,7 @@
 
   /* === HEADER === */
   .header {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
   }
 
   .header h1 {
@@ -135,7 +135,7 @@
 
   /* === SECTIONS === */
   .section {
-    margin-bottom: 13px;
+    margin-bottom: 9px;
   }
 
   .section-title {
@@ -145,16 +145,16 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--accent-color);
-    border-bottom: 1.5px solid #e2e2e2;
-    padding-bottom: 4px;
-    margin-bottom: 10px;
+    border-bottom: 1px solid #b8b8b8;
+    padding-bottom: 2px;
+    margin-bottom: 6px;
     line-height: 1.2;
   }
 
   /* === PROFESSIONAL SUMMARY === */
   .summary-text {
     font-size: var(--font-size);
-    line-height: 1.5;
+    line-height: 1.4;
     color: #2f2f2f;
   }
 
@@ -194,7 +194,7 @@
 
   /* === WORK EXPERIENCE === */
   .job {
-    margin-bottom: 10px;
+    margin-bottom: 7px;
   }
 
   .job-header {
@@ -231,15 +231,15 @@
   }
 
   .job ul {
-    padding-left: 18px;
-    margin-top: 6px;
+    padding-left: 16px;
+    margin-top: 3px;
   }
 
   .job li {
-    font-size: 10.5px;
-    line-height: 1.6;
+    font-size: 10px;
+    line-height: 1.4;
     color: #333;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
   }
 
   .job li strong {
@@ -564,16 +564,48 @@
   html[lang="zh"] .section-title {
     letter-spacing: 0.03em;
   }
+
+  /* === Classic-only: role subtitle, header rule, Key Achievements === */
+  .headline {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    margin: 2px 0 6px;
+  }
+  /* The rule sits under the whole header block (name + role + contacts). */
+  .header-gradient { margin: 8px 0 0; }
+
+  /* Key Achievements are rendered through the projects section so each entry is
+     a bold lead-in, an em-dash, then the achievement text, flowing as one line. */
+  .key-achievements .project { margin-bottom: 3px; }
+  .key-achievements .project-title {
+    display: inline;
+    font-weight: 700;
+    color: #1a1a2e;
+    font-size: 10px;
+  }
+  .key-achievements .project-title::after {
+    content: " \2014 ";
+    font-weight: 400;
+    color: #333;
+  }
+  .key-achievements .project-desc {
+    display: inline;
+    font-size: 10px;
+    color: #333;
+    margin: 0;
+    line-height: 1.4;
+  }
 </style>
 </head>
 <body>
 <div class="page">
 
   {{PHOTO}}
-  <!-- HEADER -->
+  <!-- HEADER: name + role subtitle + contact line + rule -->
   <div class="header">
     <h1>{{NAME}}</h1>
-    <div class="header-gradient"></div>
+    <div class="headline">{{HEADLINE}}</div>
     <div class="contact-row">
       <a href="tel:{{PHONE}}">{{PHONE}}</a>
       <span class="separator">|</span>
@@ -585,56 +617,37 @@
       <span class="separator">|</span>
       <span>{{LOCATION}}</span>
     </div>
+    <div class="header-gradient"></div>
   </div>
 
-  <!-- PROFESSIONAL SUMMARY -->
+  <!-- 1. PROFESSIONAL SUMMARY -->
   <div class="section">
     <div class="section-title">{{SECTION_SUMMARY}}</div>
     <div class="summary-text">{{SUMMARY_TEXT}}</div>
   </div>
 
-  <!-- CORE COMPETENCIES -->
-  <div class="section">
-    <div class="section-title">{{SECTION_COMPETENCIES}}</div>
-    <div class="competencies-grid">
-      {{COMPETENCIES}}
-    </div>
+  <!-- 2. KEY ACHIEVEMENTS (rendered through the projects section: bold lead — description) -->
+  <div class="section key-achievements">
+    <div class="section-title">{{SECTION_PROJECTS}}</div>
+    {{PROJECTS}}
   </div>
 
-  <!-- WORK EXPERIENCE -->
+  <!-- 3. TECHNICAL SKILLS (one category per line) -->
+  <div class="section">
+    <div class="section-title">{{SECTION_SKILLS}}</div>
+    {{SKILLS}}
+  </div>
+
+  <!-- 4. PROFESSIONAL EXPERIENCE -->
   <div class="section">
     <div class="section-title">{{SECTION_EXPERIENCE}}</div>
     {{EXPERIENCE}}
   </div>
 
-  <!-- PROJECTS -->
-  <div class="section">
-    <div class="section-title">{{SECTION_PROJECTS}}</div>
-    {{PROJECTS}}
-  </div>
-
-  <!-- EDUCATION -->
+  <!-- 5. EDUCATION -->
   <div class="section">
     <div class="section-title">{{SECTION_EDUCATION}}</div>
     {{EDUCATION}}
-  </div>
-
-  <!-- CERTIFICATIONS -->
-  <div class="section">
-    <div class="section-title">{{SECTION_CERTIFICATIONS}}</div>
-    <div class="cert-table">{{CERTIFICATIONS}}</div>
-  </div>
-
-  <!-- AWARDS -->
-  <div class="section">
-    <div class="section-title">{{SECTION_AWARDS}}</div>
-    <div class="award-table">{{AWARDS}}</div>
-  </div>
-
-  <!-- SKILLS -->
-  <div class="section">
-    <div class="section-title">{{SECTION_SKILLS}}</div>
-    {{SKILLS}}
   </div>
 
 </div>
